@@ -3,9 +3,6 @@ package pl.dev.davids.Remover;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import net.miginfocom.swing.MigLayout;
-import pl.dev.davids.Remover.Deleter.direction;
-
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -56,9 +53,7 @@ public class FileRemover {
 	private PathButton btnFilePath1, btnFilePath2;
 	private ActionButton btnRun, btnRunDelete, btnCheck;
 	private Pather path1, path2;
-	private Deleter deleterRAW, deleterJPG;
-	private JScrollPane listScrollPane1, listScrollPane2;
-	private Component glue;
+	private Deleter deleter;
 	private JScrollPane scrollPane_2;
 	private JScrollPane scrollPane_1;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
@@ -98,8 +93,7 @@ public class FileRemover {
 
 		path1 = new Pather(new Chooser());
 		path2 = new Pather(new Chooser());
-		deleterRAW = new Deleter(path1, path2, direction.deleteRAW);
-		deleterJPG = new Deleter(path1, path2, direction.deleteJPG);
+		deleter = new DeleterRAW(path1, path2);
 
 		btnFilePath1 = new PathButton("Choose Path1", true);
 		btnFilePath1.setBounds(7, 7, 230, 25);
@@ -121,7 +115,7 @@ public class FileRemover {
 		});
 		frmFileRemover.getContentPane().add(btnFilePath1);
 		frmFileRemover.getContentPane().add(btnFilePath2);
-		
+
 		checkBox = new JCheckBox("", true);
 		checkBox.setBounds(245, 7, 25, 25);
 		checkBox.addChangeListener(new ChangeListener() {
@@ -169,7 +163,7 @@ public class FileRemover {
 		frmFileRemover.getContentPane().add(scrollPane_2);
 		listFile2 = new FileList("RAW");
 		scrollPane_2.setViewportView(listFile2);
-		
+
 		menuBar = new JMenuBar();
 		frmFileRemover.setJMenuBar(menuBar);
 		mnFile = new JMenu("File");
@@ -185,6 +179,10 @@ public class FileRemover {
 		mnEdit.add(rdbtnmntmNewRadioItem);
 		rdbtnmntmNewRadioItem.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
+				if (rdbtnmntmNewRadioItem.isSelected())
+					deleter = new DeleterRAW(path1, path2);
+				else
+					deleter = new DeleterJPG(path1, path2);
 				btnRunDelete.setEnabled(false);
 			}
 		});
@@ -219,15 +217,9 @@ public class FileRemover {
 		btnCheck = new ActionButton("Check", false);
 		btnCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (rdbtnmntmNewRadioItem.isSelected()) {
-					deleterRAW.searchFileToDelete();
-					lblNumber.setText(String.valueOf(deleterRAW.getCounter()));
-				}
-				if (rdbtnmntmNewRadioItem_1.isSelected()) {
-					deleterJPG.searchFileToDelete();
-					lblNumber.setText(String.valueOf(deleterJPG.getCounter()));
-				}
-				if(Integer.parseInt(lblNumber.getText())>0)
+				deleter.searchFileToDelete();
+				lblNumber.setText(String.valueOf(deleter.getCounter()));
+				if (Integer.parseInt(lblNumber.getText()) > 0)
 					btnRunDelete.setEnabled(true);
 			}
 		});
@@ -240,17 +232,12 @@ public class FileRemover {
 		btnRunDelete = new ActionButton("Run Delete", false);
 		btnRunDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnmntmNewRadioItem.isSelected()) {
-					deleterRAW.runFileDelete();
-				}
-				if (rdbtnmntmNewRadioItem_1.isSelected()) {
-					deleterJPG.runFileDelete();
-				}
+				deleter.runFileDelete();
 				setNotEnabled();
 			}
 		});
 		menuBar.add(btnRunDelete);
-		
+
 		counterJPG = new JLabel("");
 		counterJPG.setBounds(12, 361, 56, 16);
 		frmFileRemover.getContentPane().add(counterJPG);

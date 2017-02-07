@@ -62,7 +62,7 @@ public class Pather {
 	}
 
 	private String selectNumberSubpath(String path) {
-		String subpath = path.substring(path.lastIndexOf('.') - 4, path.lastIndexOf('.'));
+		String subpath = path.substring(0, path.lastIndexOf('.'));
 		return subpath;
 	}
 
